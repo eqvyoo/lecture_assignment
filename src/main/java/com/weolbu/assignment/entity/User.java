@@ -1,9 +1,16 @@
 package com.weolbu.assignment.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,6 +20,8 @@ public class User {
     private Long userId;
 
     private String userName;
+
+    private String password;
 
     private String email;
 
