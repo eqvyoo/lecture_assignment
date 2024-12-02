@@ -25,3 +25,8 @@ spring:
       port: 6379
       timeout: 2000
       password:
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui
