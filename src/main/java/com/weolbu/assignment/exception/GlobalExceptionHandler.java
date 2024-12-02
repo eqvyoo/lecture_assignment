@@ -1,5 +1,6 @@
 package com.weolbu.assignment.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidLoginCredentialException.class)
     public ResponseEntity<String> handleInvalidLoginCredentialException(InvalidLoginCredentialException e){
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
