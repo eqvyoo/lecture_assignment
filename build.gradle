@@ -34,6 +34,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.mockito:mockito-core:4.+"
+    testImplementation 'org.springframework:spring-test'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.jayway.jsonpath:json-path:2.8.0'
+
 }
 
 tasks.named('test') {
