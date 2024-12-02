@@ -42,19 +42,17 @@ public class UserServiceTest {
         @DisplayName("회원가입 성공")
         void registerUserSuccess() {
             // Given
-            String rawPhone = "010-1111-2222";
-            String normalizedPhone = "01011112222";
 
             UserRegisterRequest request = UserRegisterRequest.builder()
                     .username("김철수")
                     .email("cheolsoo@example.com")
-                    .phone(rawPhone)
+                    .phone("01011112222")
                     .password("ABCdef123")
                     .role("Student")
                     .build();
 
             when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
-            when(userRepository.existsByPhone(normalizedPhone)).thenReturn(false);
+            when(userRepository.existsByPhone(request.getPhone())).thenReturn(false);
             when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
 
             // When
@@ -67,7 +65,7 @@ public class UserServiceTest {
             User savedUser = userCaptor.getValue(); // 실제 저장된 객체 확인
             Assertions.assertEquals("김철수", savedUser.getUserName());
             Assertions.assertEquals("cheolsoo@example.com", savedUser.getEmail());
-            Assertions.assertEquals(normalizedPhone, savedUser.getPhone());
+            Assertions.assertEquals("01011112222", savedUser.getPhone());
             Assertions.assertEquals("encodedPassword", savedUser.getPassword());
             Assertions.assertEquals(Role.STUDENT, savedUser.getRole());
         }
@@ -99,18 +97,16 @@ public class UserServiceTest {
         @DisplayName("전화번호 중복 예외")
         void registerUserPhoneDuplicate() {
             // Given
-            String rawPhone = "010-1111-2222";
-            String normalizedPhone = "01011112222";
 
             UserRegisterRequest request = UserRegisterRequest.builder()
                     .username("홍길동")
                     .email("test@example.com")
-                    .phone(rawPhone)
+                    .phone("01011112222")
                     .password("Abc12345")
                     .role("STUDENT")
                     .build();
 
-            when(userRepository.existsByPhone(normalizedPhone)).thenReturn(true);
+            when(userRepository.existsByPhone(request.getPhone())).thenReturn(true);
 
             // When & Then
             Assertions.assertThrows(PhoneAlreadyExistsException.class, () -> userService.registerUser(request));

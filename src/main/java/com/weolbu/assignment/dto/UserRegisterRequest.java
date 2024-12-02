@@ -17,6 +17,7 @@ public class UserRegisterRequest {
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     private String email;
     @NotBlank(message = "전화번호는 필수 입력 값입니다.")
+    @Pattern(regexp = "^01[016789]\\d{8}$", message = "올바른 휴대폰 번호를 입력해주세요.")
     private String phone;
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
     @Pattern(regexp = "^(?=.*[A-Z].*[a-z0-9]|.*[a-z].*[A-Z0-9]|.*[0-9].*[A-Za-z]).{6,10}$",

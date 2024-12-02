@@ -57,8 +57,7 @@ class UserControllerTest {
                         .content(requestBody)
         );
         // Then
-        result
-                .andExpect(status().isBadRequest());
+        result.andExpect(status().isBadRequest());
     }
 
     @Test

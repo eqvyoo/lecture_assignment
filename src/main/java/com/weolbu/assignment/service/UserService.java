@@ -5,7 +5,6 @@ import com.weolbu.assignment.entity.Role;
 import com.weolbu.assignment.exception.EmailAlreadyExistsException;
 import com.weolbu.assignment.exception.PhoneAlreadyExistsException;
 import com.weolbu.assignment.repository.UserRepository;
-import com.weolbu.assignment.util.PhoneNumberUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.weolbu.assignment.entity.User;
@@ -27,27 +26,20 @@ public class UserService {
         }
     }
 
-    //휴대폰 번호 정규화
-    private String normalizePhone(String phone){
-        return PhoneNumberUtils.normalizePhoneNumber(phone);
-    }
-
     // 휴대폰 번호 중복 여부 확인 및 정규화된 번호 반환
-    private String validatePhone(String phone) {
-        String normalizedPhone = normalizePhone(phone);
-        if (userRepository.existsByPhone(normalizedPhone)) {
+    private void validatePhone(String phone) {
+        if (userRepository.existsByPhone(phone)) {
             throw new PhoneAlreadyExistsException("해당 전화번호로 가입한 계정이 존재합니다.");
         }
-        return normalizedPhone;
     }
 
     // User 엔티티 생성
-    private User createUserEntity(UserRegisterRequest request, String normalizedPhone) {
+    private User createUserEntity(UserRegisterRequest request) {
         Role role = Role.valueOf(request.getRole().toUpperCase());
 
         return User.builder()
                 .userName(request.getUsername())
-                .phone(normalizedPhone)
+                .phone(request.getPhone())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
@@ -57,10 +49,10 @@ public class UserService {
     // 회원 가입 처리
     @Transactional
     public void registerUser(UserRegisterRequest request) {
-        String normalizedPhone = validatePhone(request.getPhone());
         validateEmail(request.getEmail());
+        validatePhone(request.getPhone());
 
-        User user = createUserEntity(request,normalizedPhone);
+        User user = createUserEntity(request);
         userRepository.save(user);
 
     }
