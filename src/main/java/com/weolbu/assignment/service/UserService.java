@@ -26,7 +26,7 @@ public class UserService {
         }
     }
 
-    // 휴대폰 번호 중복 여부 확인 및 정규화된 번호 반환
+    // 휴대폰 번호 중복 여부 확인
     private void validatePhone(String phone) {
         if (userRepository.existsByPhone(phone)) {
             throw new PhoneAlreadyExistsException("해당 전화번호로 가입한 계정이 존재합니다.");

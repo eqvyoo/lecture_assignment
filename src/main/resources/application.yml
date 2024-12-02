@@ -23,7 +23,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      timeout: 2000
+      timeout: 2000ms
       password:
 springdoc:
   api-docs:
