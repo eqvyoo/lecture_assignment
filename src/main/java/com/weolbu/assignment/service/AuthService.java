@@ -34,7 +34,7 @@ public class AuthService {
         // Refresh Token Redis에 저장
         saveRefreshTokenToRedis(user.getUserId(), refreshToken);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken);
     }
 
     // 사용자 인증

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    @Operation(summary = "로그인", description = "로그인과 함께 토큰을 발급합니다.")
+    @Operation(summary = "로그인", description = "로그인과 함께 Access token을 발급합니다.")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
