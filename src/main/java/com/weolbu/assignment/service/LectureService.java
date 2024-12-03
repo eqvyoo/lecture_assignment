@@ -68,11 +68,18 @@ public class LectureService {
 
     // 신청률 정렬
     private Page<LectureSearchResponse> getLecturesSortedByRate(Pageable pageable) {
-        List<Lecture> lectures = lectureRepository.findAllOrderByRate(pageable);
+        List<Lecture> allLecturesSortedByRate = lectureRepository.findAllOrderByRate(Pageable.unpaged());
+        int totalElements = allLecturesSortedByRate.size();
+
+        List<Lecture> pagedLectures = allLecturesSortedByRate.stream()
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .toList();
+
         return new PageImpl<>(
-                lectures.stream().map(this::convertToDto).toList(),
+                pagedLectures.stream().map(this::convertToDto).toList(),
                 pageable,
-                lectures.size()
+                totalElements
         );
     }
 

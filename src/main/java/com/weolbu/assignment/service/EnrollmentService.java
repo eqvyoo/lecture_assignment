@@ -33,7 +33,8 @@ public class EnrollmentService {
     }
 
     // 단일 강의 수강 신청
-    private void enrollInSingleLecture(Long lectureId, User user) {
+    @Transactional
+    public void enrollInSingleLecture(Long lectureId, User user) {
         Lecture lecture = getLectureWithReadLock(lectureId);
 
         validateEnrollmentCapacity(lecture);
