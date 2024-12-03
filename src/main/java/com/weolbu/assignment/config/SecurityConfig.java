@@ -29,7 +29,11 @@ public class SecurityConfig{
                                 "/api/auth/login",
                                 "/api/auth/reissue-token",
                                 "/api/users/register",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/swagger-ui/**",
+                                "/api-docs/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lectures").permitAll()
                         .requestMatchers(org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console()).permitAll() // H2 Console 허용

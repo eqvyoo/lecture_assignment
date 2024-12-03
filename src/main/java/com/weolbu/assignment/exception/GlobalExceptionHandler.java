@@ -19,12 +19,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
         public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
 
     @ExceptionHandler(PhoneAlreadyExistsException.class)
     public ResponseEntity<String> handlePhoneAlreadyExistsException(PhoneAlreadyExistsException e){
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
     @ExceptionHandler(InvalidLoginCredentialException.class)

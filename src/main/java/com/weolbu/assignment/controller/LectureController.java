@@ -4,11 +4,13 @@ import com.weolbu.assignment.dto.LectureCreateRequest;
 import com.weolbu.assignment.dto.LectureSearchResponse;
 import com.weolbu.assignment.service.LectureService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +35,14 @@ public class LectureController {
         return lectureService.getLectures(pageRequest, sort);
     }
 
-    @Operation(summary = "강의 개설 기능", description = "강사 회원은 강의를 개설할 수 있습니다.")
+    @PostMapping
+    @Operation(summary = "강의 개설 기능", description = "강사 회원은 강의를 개설할 수 있습니다.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "강의 생성 성공"),
+                    @ApiResponse(responseCode = "403", description = "강사 권한 없음"),
+                    @ApiResponse(responseCode = "500", description = "예상치 못한 예외")
+            }
+    )
     public ResponseEntity<String> createLecture(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody LectureCreateRequest lectureRequest
@@ -41,6 +50,6 @@ public class LectureController {
 
         lectureService.createLecture(userDetails, lectureRequest);
 
-        return ResponseEntity.ok("강의가 성공적으로 등록되었습니다.");
+        return ResponseEntity.status(HttpStatus.CREATED).body("강의가 성공적으로 등록되었습니다.");
     }
 }
