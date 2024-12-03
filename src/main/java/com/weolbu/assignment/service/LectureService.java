@@ -54,8 +54,6 @@ public class LectureService {
     // 강의 조회 기능
 
 
-
-
     public Page<LectureSearchResponse> getLectures(Pageable pageable, String sort) {
         if ("rate".equals(sort)) {
             // 신청률 정렬만 JPQL을 사용하기 때문에 따로 처리
@@ -67,6 +65,8 @@ public class LectureService {
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sorting);
         return lectureRepository.findAll(pageRequest).map(this::convertToDto);
     }
+
+    // 신청률 정렬
     private Page<LectureSearchResponse> getLecturesSortedByRate(Pageable pageable) {
         List<Lecture> lectures = lectureRepository.findAllOrderByRate(pageable);
         return new PageImpl<>(
@@ -75,6 +75,8 @@ public class LectureService {
                 lectures.size()
         );
     }
+
+    // 신청자 많은 순, 최근 등록 순으로 정렬
     private Sort getSortByCriteria(String sort) {
         switch (sort) {
             case "popular": // 신청자 많은 순
@@ -86,6 +88,7 @@ public class LectureService {
         }
     }
 
+    // DTO로 변환
     private LectureSearchResponse convertToDto(Lecture lecture) {
         return LectureSearchResponse.builder()
                 .lectureId(lecture.getLectureId())

@@ -38,8 +38,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InstructorRoleRequiredException.class)
-    public ResponseEntity<String> handleInstructorRoleRequiredException(InstructorRoleRequiredException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    public ResponseEntity<String> handleInstructorRoleRequiredException(InstructorRoleRequiredException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EnrollmentCapacityExceededException.class)
+    public ResponseEntity<String> handleEnrollmentCapacityExceededException(EnrollmentCapacityExceededException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(LectureNotFoundException.class)
+    public ResponseEntity<String> handleLectureNotFoundException(LectureNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
