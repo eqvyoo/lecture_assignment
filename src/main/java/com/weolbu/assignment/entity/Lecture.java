@@ -1,9 +1,17 @@
 package com.weolbu.assignment.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
 @Entity
 @Table(name = "lectures")
 public class Lecture {

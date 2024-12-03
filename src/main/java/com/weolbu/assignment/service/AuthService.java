@@ -111,6 +111,15 @@ public class AuthService {
                 .build();
     }
 
+    // UserDetails에서 user 가져오기
+    public User getUserFromUserDetails(UserDetails userDetails) {
+        String email = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
+        return user;
+    }
+
 
     // todo : 로그아웃
 }

@@ -17,7 +17,7 @@ spring:
     open-in-view: false
   jwt:
     secret-key: ${JWT_SECRET_KEY}
-    access-token-expiration: 10000          # Access Token ?? ?? 30? - 1800000
+    access-token-expiration: 1800000          # Access Token ?? ?? 30? - 1800000
     refresh-token-expiration: 1209600000      # Refresh Token ?? ?? 14?
   data:
     redis:
