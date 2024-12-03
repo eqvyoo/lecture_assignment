@@ -3,6 +3,7 @@ package com.weolbu.assignment.service;
 import com.weolbu.assignment.entity.Enrollment;
 import com.weolbu.assignment.entity.Lecture;
 import com.weolbu.assignment.entity.User;
+import com.weolbu.assignment.exception.AlreadyEnrolledException;
 import com.weolbu.assignment.exception.EnrollmentCapacityExceededException;
 import com.weolbu.assignment.exception.LectureNotFoundException;
 import com.weolbu.assignment.repository.EnrollmentRepository;
@@ -38,6 +39,7 @@ public class EnrollmentService {
         Lecture lecture = getLectureWithReadLock(lectureId);
 
         validateEnrollmentCapacity(lecture);
+        validateDuplicateEnrollment(lecture,user);
 
         saveEnrollment(lecture, user);
 
@@ -54,6 +56,14 @@ public class EnrollmentService {
     private void validateEnrollmentCapacity(Lecture lecture) {
         if (!lecture.canEnroll()) {
             throw new EnrollmentCapacityExceededException(lecture.getTitle() + "강의의 최대 수강 인원을 초과했습니다.");
+        }
+    }
+
+    // 중복 수강 신청 확인
+    private void validateDuplicateEnrollment(Lecture lecture, User user) {
+        boolean alreadyEnrolled = enrollmentRepository.existsByLectureAndStudent(lecture, user);
+        if (alreadyEnrolled) {
+            throw new AlreadyEnrolledException("이미 수강 신청한 강의입니다: " + lecture.getTitle());
         }
     }
 

@@ -51,7 +51,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleLectureNotFoundException(LectureNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-
+    @ExceptionHandler(AlreadyEnrolledException.class)
+    public ResponseEntity<String> handleAlreadyEnrolledException(AlreadyEnrolledException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e){
         Map<String, String> errors = new HashMap<>();
