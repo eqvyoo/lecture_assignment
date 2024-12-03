@@ -8,6 +8,7 @@ import com.weolbu.assignment.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.weolbu.assignment.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -56,4 +57,5 @@ public class UserService {
         userRepository.save(user);
 
     }
+
 }
