@@ -53,8 +53,8 @@ class UserControllerTest {
 
         // When
         ResultActions result = mockMvc.perform(post("/api/users/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
         );
         // Then
         result.andExpect(status().isBadRequest());

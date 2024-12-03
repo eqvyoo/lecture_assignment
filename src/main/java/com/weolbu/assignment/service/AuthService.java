@@ -29,6 +29,8 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
 
+
+
     public LoginResponse login(LoginRequest request) {
         // 사용자 인증
         User user = authenticateUser(request);
