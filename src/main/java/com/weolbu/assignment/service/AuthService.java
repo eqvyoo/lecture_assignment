@@ -9,7 +9,6 @@ import com.weolbu.assignment.exception.InvalidTokenException;
 import com.weolbu.assignment.repository.UserRepository;
 import com.weolbu.assignment.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
