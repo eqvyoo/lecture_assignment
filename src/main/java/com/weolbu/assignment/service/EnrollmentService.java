@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,24 +27,46 @@ public class EnrollmentService {
     private final AuthService authService;
 
     @Transactional
-    public void enrollInLectures(List<Long> lectureIds, UserDetails userDetails) {
+    public Map<String, String> enrollInLectures(List<Long> lectureIds, UserDetails userDetails) {
         User user = authService.getUserFromUserDetails(userDetails);
+        Map<String, String> enrollmentResults = new HashMap<>();
 
         for (Long lectureId : lectureIds) {
-            enrollInSingleLecture(lectureId, user);
+            handleEnrollment(lectureId, user, enrollmentResults);
         }
+
+        return enrollmentResults;
+    }
+
+    private void handleEnrollment(Long lectureId, User user, Map<String, String> results) {
+        String lectureTitle = null;
+        try {
+            Lecture lecture = getLecture(lectureId);
+            lectureTitle = lecture.getTitle();
+            enrollInSingleLecture(lecture, user);
+            results.put(lectureTitle, "강의 수강 신청 성공");
+        } catch (LectureNotFoundException e) {
+            results.put(String.valueOf(lectureId), "번 강의를 찾을 수 없습니다.");
+        } catch (EnrollmentCapacityExceededException e) {
+            results.put(lectureTitle, " 강의는 수강 정원을 초과했습니다.");
+        } catch (AlreadyEnrolledException e) {
+            results.put(lectureTitle, " 강의를 이미 수강 신청했습니다.");
+        }
+    }
+
+    // 강의 조회
+    private Lecture getLecture(Long lectureId) {
+        return lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new LectureNotFoundException("존재하지 않는 강의입니다."));
     }
 
     // 단일 강의 수강 신청
     @Transactional
-    public void enrollInSingleLecture(Long lectureId, User user) {
-        Lecture lecture = getLectureWithReadLock(lectureId);
-
+    public void enrollInSingleLecture(Lecture lecture, User user) {
         validateEnrollmentCapacity(lecture);
-        validateDuplicateEnrollment(lecture,user);
+        validateDuplicateEnrollment(lecture, user);
 
         saveEnrollment(lecture, user);
-
         incrementLectureParticipants(lecture);
     }
 

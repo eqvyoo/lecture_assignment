@@ -20,4 +20,6 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
     @Lock(LockModeType.PESSIMISTIC_READ) // 비관적 읽기
     @Query("SELECT l FROM Lecture l WHERE l.lectureId = :lectureId")
     Optional<Lecture> findByIdForUpdate(@Param("lectureId") Long lectureId);
+
+
 }

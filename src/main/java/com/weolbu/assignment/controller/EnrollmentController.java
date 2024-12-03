@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/enrollments")
@@ -32,7 +34,7 @@ public class EnrollmentController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "수강 신청 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "로그인이 필요한 인증되지 않은 사용자"),
+                    @ApiResponse(responseCode = "403", description = "로그인이 필요한 인증되지 않은 사용자"),
                     @ApiResponse(responseCode = "404", description = "강의를 찾을 수 없음"),
                     @ApiResponse(responseCode = "409", description = """
                             수강 신청 실패:
@@ -43,15 +45,33 @@ public class EnrollmentController {
             }
     )
     @PostMapping
-    public ResponseEntity<String> enrollInLectures(
+    public ResponseEntity<Map<String, Object>> enrollInLectures(
             @RequestBody List<Long> lectureIds,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        // 로그인 안된 사용자의 경우, 로그인 요청
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        Map<String, String> results = enrollmentService.enrollInLectures(lectureIds, userDetails);
+
+        // 상태 결정 (모두 성공 / 모두 실패 / 일부 성공)
+        boolean allSuccess = results.values().stream().allMatch("강의 수강 신청 성공"::equals);
+        boolean allFailure = results.values().stream().noneMatch("강의 수강 신청 성공"::equals);
+
+        String status;
+        HttpStatus httpStatus;
+        if (allSuccess) {
+            status = "success";
+            httpStatus = HttpStatus.OK;
+        } else if (allFailure) {
+            status = "failure";
+            httpStatus = HttpStatus.CONFLICT; // 409
+        } else {
+            status = "partial_success";
+            httpStatus = HttpStatus.OK; // 일부 성공도 200
         }
-        enrollmentService.enrollInLectures(lectureIds, userDetails);
-        return ResponseEntity.ok("수강 신청이 완료되었습니다.");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status);
+        response.put("results", results);
+
+        return ResponseEntity.status(httpStatus).body(response);
     }
 }
