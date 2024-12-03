@@ -1,15 +1,20 @@
 package com.weolbu.assignment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.weolbu.assignment.config.JwtFilter;
 import com.weolbu.assignment.controller.AuthController;
+import com.weolbu.assignment.dto.AccessTokenReissueResponse;
 import com.weolbu.assignment.dto.LoginRequest;
 import com.weolbu.assignment.dto.LoginResponse;
 import com.weolbu.assignment.exception.InvalidLoginCredentialException;
+import com.weolbu.assignment.exception.InvalidTokenException;
 import com.weolbu.assignment.service.AuthService;
+import com.weolbu.assignment.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,7 +40,10 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
+    @MockBean
+    private JwtUtil jwtUtil;
+    @MockBean
+    private JwtFilter jwtFilter;
     @MockBean
     private AuthService authService;
 
@@ -46,8 +55,16 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
+        // RedisTemplate Mock 설정
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
+
+        // AuthService Mock 설정
+        String mockAccessToken = "mockAccessToken";
+        when(authService.login(any(LoginRequest.class)))
+                .thenReturn(new LoginResponse(mockAccessToken));
+        when(authService.reissueAccessToken(anyString()))
+                .thenReturn(new AccessTokenReissueResponse(mockAccessToken));
     }
 
     @Nested
@@ -117,6 +134,96 @@ class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(request)))
                     .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
+    @DisplayName("Access Token 재발급 테스트")
+    class ReissueAccessTokenTests {
+
+        @Test
+        @DisplayName("Access Token 재발급 성공")
+        void reissueAccessToken_success() throws Exception {
+            // Given
+            String expiredToken = "expiredAccessTokenExample";
+            String newAccessToken = "newAccessTokenExample";
+            AccessTokenReissueResponse response = new AccessTokenReissueResponse(newAccessToken);
+
+            Mockito.when(authService.reissueAccessToken(expiredToken)).thenReturn(response);
+
+            // When
+            mockMvc.perform(put("/api/auth/reissue-token")
+                            .requestAttr("expiredToken", expiredToken)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    // Then
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").value(newAccessToken));
+        }
+
+        @Nested
+        @DisplayName("Access Token 재발급 실패")
+        class ReissueAccessTokenFailureTests {
+
+            @Test
+            @DisplayName("만료된 Access Token이 누락되었을 때")
+            void reissueAccessToken_missingExpiredToken() throws Exception {
+                // When
+                mockMvc.perform(put("/api/auth/reissue-token")
+                                .contentType(MediaType.APPLICATION_JSON))
+                        // Then
+                        .andExpect(status().isUnauthorized());
+            }
+
+            @Test
+            @DisplayName("Redis에 Refresh Token이 없을 때")
+            void reissueAccessToken_noRefreshTokenInRedis() throws Exception {
+                // Given
+                String expiredToken = "expiredAccessTokenExample";
+
+                Mockito.when(authService.reissueAccessToken(expiredToken))
+                        .thenThrow(new InvalidTokenException("Refresh Token이 Redis에 존재하지 않습니다."));
+
+                // When
+                mockMvc.perform(put("/api/auth/reissue-token")
+                                .requestAttr("expiredToken", expiredToken)
+                                .contentType(MediaType.APPLICATION_JSON))
+                        // Then
+                        .andExpect(status().isUnauthorized());
+            }
+
+            @Test
+            @DisplayName("Refresh Token이 만료되었을 때")
+            void reissueAccessToken_expiredRefreshToken() throws Exception {
+                // Given
+                String expiredToken = "expiredAccessTokenExample";
+
+                Mockito.when(authService.reissueAccessToken(expiredToken))
+                        .thenThrow(new InvalidTokenException("Refresh Token이 만료되었습니다."));
+
+                // When
+                mockMvc.perform(put("/api/auth/reissue-token")
+                                .requestAttr("expiredToken", expiredToken)
+                                .contentType(MediaType.APPLICATION_JSON))
+                        // Then
+                        .andExpect(status().isUnauthorized());
+            }
+
+            @Test
+            @DisplayName("만료된 Access Token 형식이 잘못되었을 때")
+            void reissueAccessToken_invalidTokenFormat() throws Exception {
+                // Given
+                String invalidToken = "invalidTokenExample";
+
+                Mockito.when(authService.reissueAccessToken(invalidToken))
+                        .thenThrow(new InvalidTokenException("유효하지 않은 Access Token입니다."));
+
+                // When
+                mockMvc.perform(put("/api/auth/reissue-token")
+                                .requestAttr("expiredToken", invalidToken)
+                                .contentType(MediaType.APPLICATION_JSON))
+                        // Then
+                        .andExpect(status().isUnauthorized());
+            }
         }
     }
 }
