@@ -32,10 +32,11 @@ public class EnrollmentController {
                     수강생 및 강사 모두 이 API를 호출할 수 있습니다.
                     """,
             responses = {
-                    @ApiResponse(responseCode = "200", description = "수강 신청 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "403", description = "로그인이 필요한 인증되지 않은 사용자"),
-                    @ApiResponse(responseCode = "404", description = "강의를 찾을 수 없음"),
+                    @ApiResponse(responseCode = "200", description = """
+                            수강 신청 성공, 부분 성공:
+                            - 이미 수강 신청된 강의 혹은 수강 인원 정원 초과인 강의를 신청했을 때와 수강 신청을 성공한 강의가 함께 있을 때
+                            - 수강 신청 모두 성공
+                            """),
                     @ApiResponse(responseCode = "409", description = """
                             수강 신청 실패:
                             - 이미 수강 신청된 강의
