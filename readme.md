@@ -31,7 +31,7 @@ IntelliJ를 사용하여 프로젝트를 GitHub에서 클론하는 방법:
 
 - Git을 선택합니다.
 
-- URL 입력란에 ```https://github.com/eqvyoo/weolbu-assignment``` 을 입력합니다.
+- URL 입력란에 ```https://github.com/eqvyoo/lecture-assignment``` 을 입력합니다.
 
 - 로컬 저장 경로를 설정하고 Clone 버튼을 클릭합니다.
 
